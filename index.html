@@ -69,36 +69,6 @@
             </div>
         </section>
 
-        <section id="upload" class="upload-section">
-            <div class="upload-sidebar">
-                <h2 class="sidebar-title">上传文件</h2>
-                <div class="upload-container">
-                    <div class="upload-area" id="uploadArea">
-                        <div class="upload-content">
-                            <div class="upload-icon-wrapper">
-                                <i class="fas fa-cloud-upload-alt upload-icon"></i>
-                                <div class="upload-pulse"></div>
-                            </div>
-                            <h3>选择要上传的文件</h3>
-                            <p>文件将安全存储在GitHub仓库</p>
-                            <div class="upload-actions">
-                                <input type="file" id="fileInput" multiple hidden>
-                                <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
-                                    <i class="fas fa-folder-open"></i> 选择文件
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="upload-progress" id="uploadProgress" style="display: none;">
-                        <div class="progress-bar">
-                            <div class="progress-fill" id="progressFill"></div>
-                        </div>
-                        <span class="progress-text" id="progressText">0%</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
         <section id="files" class="files-section">
             <div class="container">
                 <h2 class="section-title">文件列表</h2>
@@ -108,7 +78,7 @@
                     </div>
                     <div class="empty-state" id="emptyState">
                         <i class="fas fa-folder-open"></i>
-                        <p>暂无文件，请先上传一些文件</p>
+                        <p>暂无文件</p>
                     </div>
                 </div>
             </div>
