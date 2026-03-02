@@ -164,7 +164,7 @@ body {
     font-size: 14px;
 }
 
-.github-token-section {
+.upload-info {
     background: white;
     border: 1px solid #e1e5e9;
     border-radius: 8px;
@@ -172,32 +172,16 @@ body {
     margin-bottom: 20px;
 }
 
-.github-token-section label {
-    display: block;
+.upload-info p {
     margin-bottom: 8px;
-    font-weight: 500;
     color: #24292e;
 }
 
-.github-token-section input {
-    width: 100%;
-    padding: 8px 12px;
-    border: 1px solid #e1e5e9;
-    border-radius: 6px;
-    font-size: 14px;
-    margin-bottom: 10px;
-}
-
-.github-token-section button {
-    width: 100%;
-    margin-bottom: 8px;
-}
-
-.github-token-section small {
-    display: block;
-    color: #656d76;
-    font-size: 12px;
-    text-align: center;
+.upload-info code {
+    background: #f6f8fa;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
 }
 
 .btn-primary {

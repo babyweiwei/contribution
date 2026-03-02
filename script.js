@@ -1,13 +1,11 @@
 class FileUploadManager {
     constructor() {
-        this.githubToken = null; // 需要用户设置GitHub Token
         this.repoOwner = 'babyweiwei';
         this.repoName = 'contribution';
         this.filesPath = 'uploaded-files';
         this.files = [];
         this.initializeElements();
         this.bindEvents();
-        this.restoreGitHubToken(); // 恢复token
         this.loadFiles();
     }
 
@@ -131,52 +129,29 @@ class FileUploadManager {
     }
 
     async uploadFile(file) {
-        if (!this.githubToken) {
-            this.showNotification('请先设置GitHub Token', 'warning');
-            return;
-        }
-
         // 显示进度条
         this.uploadProgress.style.display = 'block';
+        this.showNotification('请手动上传文件到GitHub仓库', 'info');
         
-        try {
-            // 读取文件内容
-            const fileContent = await this.readFileAsBase64(file);
+        // 模拟上传进度
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += Math.random() * 30;
+            if (progress > 100) progress = 100;
             
-            // 上传到GitHub
-            const response = await fetch(`https://api.github.com/repos/${this.repoOwner}/${this.repoName}/contents/${this.filesPath}/${file.name}`, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `token ${this.githubToken}`,
-                    'Accept': 'application/vnd.github.v3+json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    message: `Upload file: ${file.name}`,
-                    content: fileContent
-                })
-            });
-
-            if (response.ok) {
-                this.updateProgress(100);
-                this.showNotification(`文件 ${file.name} 上传成功！`, 'success');
+            this.updateProgress(progress);
+            
+            if (progress === 100) {
+                clearInterval(interval);
+                this.showNotification(`请将文件 ${file.name} 手动上传到GitHub仓库的 ${this.filesPath} 目录`, 'info');
                 
-                // 重新加载文件列表
-                await this.loadFilesFromGitHub();
-            } else {
-                const error = await response.json();
-                this.showNotification(`上传失败: ${error.message}`, 'error');
+                // 重置进度条
+                setTimeout(() => {
+                    this.uploadProgress.style.display = 'none';
+                    this.updateProgress(0);
+                }, 1000);
             }
-        } catch (error) {
-            console.error('Upload failed:', error);
-            this.showNotification(`上传失败: ${error.message}`, 'error');
-        }
-        
-        // 重置进度条
-        setTimeout(() => {
-            this.uploadProgress.style.display = 'none';
-            this.updateProgress(0);
-        }, 1000);
+        }, 200);
     }
 
     readFileAsBase64(file) {
@@ -299,66 +274,59 @@ class FileUploadManager {
         const file = this.files.find(f => f.id == fileId);
         if (!file) return;
 
-        if (!this.githubToken) {
-            this.showNotification('请先设置GitHub Token', 'warning');
+        if (!confirm(`确定要删除文件 "${file.name}" 吗？\n\n注意：需要手动从GitHub仓库删除该文件`)) {
             return;
         }
 
-        if (!confirm(`确定要删除文件 "${file.name}" 吗？`)) {
-            return;
-        }
-
-        try {
-            const response = await fetch(`https://api.github.com/repos/${this.repoOwner}/${this.repoName}/contents/${file.path}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `token ${this.githubToken}`,
-                    'Accept': 'application/vnd.github.v3+json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    message: `Delete file: ${file.name}`,
-                    sha: file.id
-                })
-            });
-
-            if (response.ok) {
-                this.showNotification(`文件 ${file.name} 已删除`, 'success');
-                await this.loadFilesFromGitHub();
-            } else {
-                const error = await response.json();
-                this.showNotification(`删除失败: ${error.message}`, 'error');
-            }
-        } catch (error) {
-            console.error('Delete failed:', error);
-            this.showNotification(`删除失败: ${error.message}`, 'error');
-        }
+        this.showNotification(`请手动从GitHub仓库删除文件: ${file.name}`, 'info');
     }
 
-    setGitHubToken() {
-        const tokenInput = document.getElementById('githubToken');
-        const token = tokenInput.value.trim();
-        
-        if (!token) {
-            this.showNotification('请输入GitHub Token', 'error');
-            return;
-        }
-        
-        this.githubToken = token;
-        localStorage.setItem('githubToken', token);
-        this.showNotification('GitHub Token 设置成功！', 'success');
-        
-        // 重新加载文件
-        this.loadFilesFromGitHub();
-    }
+    showUploadHelp() {
+        const helpModal = document.createElement('div');
+        helpModal.className = 'help-modal';
+        helpModal.innerHTML = `
+            <div class="modal-backdrop" onclick="this.parentElement.remove()"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-question-circle"></i> 文件上传教程</h3>
+                    <button class="modal-close" onclick="this.closest('.help-modal').remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <h4>上传文件到GitHub仓库：</h4>
+                    <ol>
+                        <li>访问你的GitHub仓库：<a href="https://github.com/babyweiwei/contribution" target="_blank">babyweiwei/contribution</a></li>
+                        <li>点击 "Add file" → "Upload files"</li>
+                        <li>在文件路径中输入：<code>uploaded-files/你的文件名</code></li>
+                        <li>选择文件并上传</li>
+                        <li>提交更改</li>
+                    </ol>
+                    <h4>删除文件：</h4>
+                    <ol>
+                        <li>进入仓库的 <code>uploaded-files</code> 目录</li>
+                        <li>找到要删除的文件</li>
+                        <li>点击文件右侧的删除按钮</li>
+                        <li>提交更改</li>
+                    </ol>
+                    <p><strong>注意：</strong>上传后需要等待几分钟才能在网站上看到文件。</p>
+                </div>
+            </div>
+        `;
 
-    // 从localStorage恢复token
-    restoreGitHubToken() {
-        const savedToken = localStorage.getItem('githubToken');
-        if (savedToken) {
-            this.githubToken = savedToken;
-            document.getElementById('githubToken').value = savedToken;
-        }
+        Object.assign(helpModal.style, {
+            position: 'fixed',
+            top: '0',
+            left: '0',
+            right: '0',
+            bottom: '0',
+            zIndex: '10000',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+        });
+
+        document.body.appendChild(helpModal);
     }
 
     loadFiles() {
@@ -367,20 +335,9 @@ class FileUploadManager {
     }
 
     async loadFilesFromGitHub() {
-        if (!this.githubToken) {
-            this.showNotification('请先设置GitHub Token', 'warning');
-            this.renderFiles();
-            return;
-        }
-
         try {
-            const response = await fetch(`https://api.github.com/repos/${this.repoOwner}/${this.repoName}/contents/${this.filesPath}`, {
-                headers: {
-                    'Authorization': `token ${this.githubToken}`,
-                    'Accept': 'application/vnd.github.v3+json'
-                }
-            });
-
+            const response = await fetch(`https://api.github.com/repos/${this.repoOwner}/${this.repoName}/contents/${this.filesPath}`);
+            
             if (response.ok) {
                 const data = await response.json();
                 this.files = data.map(item => ({
