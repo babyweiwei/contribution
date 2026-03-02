@@ -4,6 +4,7 @@ class FileUploadManager {
         this.initializeElements();
         this.bindEvents();
         this.renderFiles();
+        this.loadGitHubStats();
     }
 
     initializeElements() {
@@ -14,6 +15,67 @@ class FileUploadManager {
         this.progressText = document.getElementById('progressText');
         this.filesGrid = document.getElementById('filesGrid');
         this.emptyState = document.getElementById('emptyState');
+    }
+
+    async loadGitHubStats() {
+        try {
+            // 获取用户基本信息
+            const userResponse = await fetch('https://api.github.com/users/babyweiwei');
+            const userData = await userResponse.json();
+            
+            // 获取仓库信息
+            const reposResponse = await fetch('https://api.github.com/users/babyweiwei/repos');
+            const reposData = await reposResponse.json();
+            
+            // 计算总提交数（简化版本，实际需要更复杂的计算）
+            let totalCommits = 0;
+            for (const repo of reposData) {
+                try {
+                    const commitsResponse = await fetch(`https://api.github.com/repos/babyweiwei/${repo.name}/commits?per_page=1`);
+                    if (commitsResponse.ok) {
+                        const commitsData = await commitsResponse.json();
+                        // 获取提交总数的简化方法
+                        const linkHeader = commitsResponse.headers.get('link');
+                        if (linkHeader) {
+                            const match = linkHeader.match(/page=(\d+)>; rel="last"/);
+                            if (match) {
+                                totalCommits += parseInt(match[1]);
+                            }
+                        } else if (commitsData.length > 0) {
+                            totalCommits += commitsData.length;
+                        }
+                    }
+                } catch (e) {
+                    console.log(`Could not fetch commits for ${repo.name}`);
+                }
+            }
+            
+            // 更新页面显示
+            this.updateStats({
+                repos: userData.public_repos,
+                commits: totalCommits || 12, // 如果获取失败，使用当前仓库的提交数
+                followers: userData.followers
+            });
+            
+        } catch (error) {
+            console.log('Failed to load GitHub stats:', error);
+            // 使用默认值
+            this.updateStats({
+                repos: 2,
+                commits: 12,
+                followers: 2
+            });
+        }
+    }
+
+    updateStats(stats) {
+        const repoCount = document.getElementById('repo-count');
+        const commitCount = document.getElementById('commit-count');
+        const followerCount = document.getElementById('follower-count');
+        
+        if (repoCount) repoCount.textContent = stats.repos;
+        if (commitCount) commitCount.textContent = stats.commits;
+        if (followerCount) followerCount.textContent = stats.followers;
     }
 
     bindEvents() {
