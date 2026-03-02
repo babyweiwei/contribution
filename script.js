@@ -1,9 +1,14 @@
 class FileUploadManager {
     constructor() {
-        this.files = this.loadFiles();
+        this.githubToken = null; // 需要用户设置GitHub Token
+        this.repoOwner = 'babyweiwei';
+        this.repoName = 'contribution';
+        this.filesPath = 'uploaded-files';
+        this.files = [];
         this.initializeElements();
         this.bindEvents();
-        this.renderFiles();
+        this.restoreGitHubToken(); // 恢复token
+        this.loadFiles();
     }
 
     initializeElements() {
@@ -125,44 +130,65 @@ class FileUploadManager {
         });
     }
 
-    uploadFile(file) {
+    async uploadFile(file) {
+        if (!this.githubToken) {
+            this.showNotification('请先设置GitHub Token', 'warning');
+            return;
+        }
+
         // 显示进度条
         this.uploadProgress.style.display = 'block';
         
-        // 模拟上传进度
-        let progress = 0;
-        const interval = setInterval(() => {
-            progress += Math.random() * 30;
-            if (progress > 100) progress = 100;
+        try {
+            // 读取文件内容
+            const fileContent = await this.readFileAsBase64(file);
             
-            this.updateProgress(progress);
-            
-            if (progress === 100) {
-                clearInterval(interval);
-                
-                // 保存文件信息
-                const fileInfo = {
-                    id: Date.now() + Math.random(),
-                    name: file.name,
-                    size: file.size,
-                    type: file.type,
-                    uploadDate: new Date().toISOString(),
-                    url: this.createFileURL(file)
-                };
-                
-                this.files.push(fileInfo);
-                this.saveFiles();
-                this.renderFiles();
-                
-                // 重置进度条
-                setTimeout(() => {
-                    this.uploadProgress.style.display = 'none';
-                    this.updateProgress(0);
-                }, 1000);
-                
+            // 上传到GitHub
+            const response = await fetch(`https://api.github.com/repos/${this.repoOwner}/${this.repoName}/contents/${this.filesPath}/${file.name}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${this.githubToken}`,
+                    'Accept': 'application/vnd.github.v3+json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: `Upload file: ${file.name}`,
+                    content: fileContent
+                })
+            });
+
+            if (response.ok) {
+                this.updateProgress(100);
                 this.showNotification(`文件 ${file.name} 上传成功！`, 'success');
+                
+                // 重新加载文件列表
+                await this.loadFilesFromGitHub();
+            } else {
+                const error = await response.json();
+                this.showNotification(`上传失败: ${error.message}`, 'error');
             }
-        }, 200);
+        } catch (error) {
+            console.error('Upload failed:', error);
+            this.showNotification(`上传失败: ${error.message}`, 'error');
+        }
+        
+        // 重置进度条
+        setTimeout(() => {
+            this.uploadProgress.style.display = 'none';
+            this.updateProgress(0);
+        }, 1000);
+    }
+
+    readFileAsBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const base64 = reader.result.split(',')[1]; // 移除data:...前缀
+                resolve(base64);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
     }
 
     updateProgress(progress) {
@@ -269,30 +295,131 @@ class FileUploadManager {
         }, 100);
     }
 
-    deleteFile(fileId) {
-        const fileIndex = this.files.findIndex(f => f.id == fileId);
-        if (fileIndex === -1) return;
+    async deleteFile(fileId) {
+        const file = this.files.find(f => f.id == fileId);
+        if (!file) return;
 
-        const fileName = this.files[fileIndex].name;
-        
-        if (confirm(`确定要删除文件 "${fileName}" 吗？`)) {
-            this.files.splice(fileIndex, 1);
-            this.saveFiles();
-            this.renderFiles();
-            this.showNotification(`文件 ${fileName} 已删除`, 'success');
+        if (!this.githubToken) {
+            this.showNotification('请先设置GitHub Token', 'warning');
+            return;
+        }
+
+        if (!confirm(`确定要删除文件 "${file.name}" 吗？`)) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`https://api.github.com/repos/${this.repoOwner}/${this.repoName}/contents/${file.path}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `token ${this.githubToken}`,
+                    'Accept': 'application/vnd.github.v3+json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: `Delete file: ${file.name}`,
+                    sha: file.id
+                })
+            });
+
+            if (response.ok) {
+                this.showNotification(`文件 ${file.name} 已删除`, 'success');
+                await this.loadFilesFromGitHub();
+            } else {
+                const error = await response.json();
+                this.showNotification(`删除失败: ${error.message}`, 'error');
+            }
+        } catch (error) {
+            console.error('Delete failed:', error);
+            this.showNotification(`删除失败: ${error.message}`, 'error');
         }
     }
 
-    saveFiles() {
-        // 在实际应用中，这里会保存到服务器
-        // 现在我们保存到 localStorage
-        localStorage.setItem('uploadedFiles', JSON.stringify(this.files));
+    setGitHubToken() {
+        const tokenInput = document.getElementById('githubToken');
+        const token = tokenInput.value.trim();
+        
+        if (!token) {
+            this.showNotification('请输入GitHub Token', 'error');
+            return;
+        }
+        
+        this.githubToken = token;
+        localStorage.setItem('githubToken', token);
+        this.showNotification('GitHub Token 设置成功！', 'success');
+        
+        // 重新加载文件
+        this.loadFilesFromGitHub();
+    }
+
+    // 从localStorage恢复token
+    restoreGitHubToken() {
+        const savedToken = localStorage.getItem('githubToken');
+        if (savedToken) {
+            this.githubToken = savedToken;
+            document.getElementById('githubToken').value = savedToken;
+        }
     }
 
     loadFiles() {
-        // 从 localStorage 加载文件列表
-        const saved = localStorage.getItem('uploadedFiles');
-        return saved ? JSON.parse(saved) : [];
+        // 从GitHub仓库加载文件列表
+        this.loadFilesFromGitHub();
+    }
+
+    async loadFilesFromGitHub() {
+        if (!this.githubToken) {
+            this.showNotification('请先设置GitHub Token', 'warning');
+            this.renderFiles();
+            return;
+        }
+
+        try {
+            const response = await fetch(`https://api.github.com/repos/${this.repoOwner}/${this.repoName}/contents/${this.filesPath}`, {
+                headers: {
+                    'Authorization': `token ${this.githubToken}`,
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                this.files = data.map(item => ({
+                    id: item.sha,
+                    name: item.name,
+                    size: item.size,
+                    type: this.getMimeTypeFromName(item.name),
+                    uploadDate: new Date(item.created_at || item.updated_at).toISOString(),
+                    url: item.download_url,
+                    path: item.path
+                }));
+            } else {
+                console.log('No files directory found, starting fresh');
+                this.files = [];
+            }
+        } catch (error) {
+            console.error('Failed to load files from GitHub:', error);
+            this.files = [];
+        }
+        
+        this.renderFiles();
+    }
+
+    getMimeTypeFromName(fileName) {
+        const ext = fileName.split('.').pop().toLowerCase();
+        const mimeTypes = {
+            'pdf': 'application/pdf',
+            'txt': 'text/plain',
+            'jpg': 'image/jpeg',
+            'jpeg': 'image/jpeg',
+            'png': 'image/png',
+            'gif': 'image/gif',
+            'zip': 'application/zip',
+            'doc': 'application/msword',
+            'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'xls': 'application/vnd.ms-excel',
+            'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        };
+        return mimeTypes[ext] || 'application/octet-stream';
     }
 
     showNotification(message, type = 'info') {

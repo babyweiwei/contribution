@@ -44,14 +44,20 @@
         </section>
 
         <section id="upload" class="upload-section">
-            <div class="container">
-                <h2 class="section-title">上传文件</h2>
+            <div class="upload-sidebar">
+                <h2 class="sidebar-title">上传文件</h2>
+                <div class="github-token-section">
+                    <label for="githubToken">GitHub Token:</label>
+                    <input type="password" id="githubToken" placeholder="输入GitHub Personal Access Token">
+                    <button class="btn btn-small" onclick="fileManager.setGitHubToken()">设置Token</button>
+                    <small>需要repo权限的GitHub Token</small>
+                </div>
                 <div class="upload-container">
                     <div class="upload-area" id="uploadArea">
                         <div class="upload-content">
                             <i class="fas fa-cloud-upload-alt upload-icon"></i>
-                            <h3>拖拽文件到此处或点击选择</h3>
-                            <p>支持任何类型的文件，最大 10MB</p>
+                            <h3>拖拽文件到此处</h3>
+                            <p>或点击选择文件</p>
                             <input type="file" id="fileInput" multiple hidden>
                             <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
                                 选择文件
