@@ -4,7 +4,6 @@ class FileUploadManager {
         this.initializeElements();
         this.bindEvents();
         this.renderFiles();
-        this.loadGitHubStats();
     }
 
     initializeElements() {
