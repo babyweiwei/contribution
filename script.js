@@ -336,10 +336,13 @@ class FileUploadManager {
 
     async loadFilesFromGitHub() {
         try {
+            console.log('Loading files from GitHub...');
             const response = await fetch(`https://api.github.com/repos/${this.repoOwner}/${this.repoName}/contents/${this.filesPath}`);
+            console.log('Response status:', response.status);
             
             if (response.ok) {
                 const data = await response.json();
+                console.log('Files data:', data);
                 this.files = data.map(item => ({
                     id: item.sha,
                     name: item.name,
@@ -349,6 +352,7 @@ class FileUploadManager {
                     url: item.download_url,
                     path: item.path
                 }));
+                console.log('Processed files:', this.files);
             } else {
                 console.log('No files directory found, starting fresh');
                 this.files = [];
