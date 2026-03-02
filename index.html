@@ -27,8 +27,38 @@
     <main class="main">
         <section id="home" class="hero">
             <div class="hero-content">
-                <h1 class="hero-title">我的已有工作</h1>
-                <p class="hero-subtitle">一个简洁的文件分享平台</p>
+                <div class="hero-text">
+                    <h1 class="hero-title">我的已有工作</h1>
+                    <p class="hero-subtitle">一个简洁的文件分享平台</p>
+                    <div class="hero-features">
+                        <div class="feature-item">
+                            <i class="fas fa-cloud"></i>
+                            <span>GitHub 存储</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>安全可靠</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-sync"></i>
+                            <span>实时同步</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero-visual">
+                    <div class="floating-card">
+                        <i class="fas fa-file-alt"></i>
+                        <div class="card-dots"></div>
+                    </div>
+                    <div class="floating-card" style="animation-delay: 0.2s;">
+                        <i class="fas fa-image"></i>
+                        <div class="card-dots"></div>
+                    </div>
+                    <div class="floating-card" style="animation-delay: 0.4s;">
+                        <i class="fas fa-code"></i>
+                        <div class="card-dots"></div>
+                    </div>
+                </div>
                 <div class="hero-buttons">
                     <a href="#upload" class="btn btn-primary">
                         <i class="fas fa-upload"></i> 上传文件
@@ -47,22 +77,35 @@
             <div class="upload-sidebar">
                 <h2 class="sidebar-title">上传文件</h2>
                 <div class="upload-info">
-                    <p><strong>文件存储说明：</strong></p>
-                    <p>• 文件存储在GitHub仓库的 <code>uploaded-files</code> 目录</p>
-                    <p>• 需要手动上传文件到GitHub仓库</p>
-                    <p>• 点击下方按钮获取上传链接</p>
-                    <button class="btn btn-small" onclick="fileManager.showUploadHelp()">查看上传教程</button>
+                    <div class="info-header">
+                        <i class="fas fa-info-circle"></i>
+                        <h4>文件存储说明</h4>
+                    </div>
+                    <ul class="info-list">
+                        <li><i class="fas fa-check"></i> 文件存储在GitHub仓库</li>
+                        <li><i class="fas fa-check"></i> 路径：<code>uploaded-files/</code></li>
+                        <li><i class="fas fa-check"></i> 支持所有文件类型</li>
+                        <li><i class="fas fa-check"></i> 跨设备同步访问</li>
+                    </ul>
+                    <button class="btn btn-small btn-info" onclick="fileManager.showUploadHelp()">
+                        <i class="fas fa-question-circle"></i> 查看上传教程
+                    </button>
                 </div>
                 <div class="upload-container">
                     <div class="upload-area" id="uploadArea">
                         <div class="upload-content">
-                            <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                            <div class="upload-icon-wrapper">
+                                <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                                <div class="upload-pulse"></div>
+                            </div>
                             <h3>选择要上传的文件</h3>
-                            <p>文件将存储在GitHub仓库</p>
-                            <input type="file" id="fileInput" multiple hidden>
-                            <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
-                                选择文件
-                            </button>
+                            <p>文件将安全存储在GitHub仓库</p>
+                            <div class="upload-actions">
+                                <input type="file" id="fileInput" multiple hidden>
+                                <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                                    <i class="fas fa-folder-open"></i> 选择文件
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div class="upload-progress" id="uploadProgress" style="display: none;">
