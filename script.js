@@ -161,7 +161,7 @@ class FileUploadManager {
         if (!file) return;
 
         // 创建一个模拟的下载链接
-        this.showNotification(`准备下载 ${file.name}`, 'info');
+        this.showNotification(`开始下载 ${file.name}`, 'info');
         
         // 创建一个临时的下载链接
         const downloadLink = document.createElement('a');
@@ -176,7 +176,7 @@ class FileUploadManager {
         // 清理
         setTimeout(() => {
             document.body.removeChild(downloadLink);
-            this.showNotification(`${file.name} 下载完成！`, 'success');
+            this.showNotification(`${file.name} 下载已开始`, 'success');
         }, 100);
     }
 
