@@ -249,14 +249,24 @@ class FileUploadManager {
         const file = this.files.find(f => f.id == fileId);
         if (!file) return;
 
-        // 在实际应用中，这里会触发真实的文件下载
-        // 现在我们模拟下载过程
-        this.showNotification(`开始下载 ${file.name}`, 'info');
+        // 创建一个模拟的下载链接
+        this.showNotification(`准备下载 ${file.name}`, 'info');
         
-        // 模拟下载延迟
+        // 创建一个临时的下载链接
+        const downloadLink = document.createElement('a');
+        downloadLink.href = file.url || '#';
+        downloadLink.download = file.name;
+        downloadLink.style.display = 'none';
+        document.body.appendChild(downloadLink);
+        
+        // 触发点击
+        downloadLink.click();
+        
+        // 清理
         setTimeout(() => {
+            document.body.removeChild(downloadLink);
             this.showNotification(`${file.name} 下载完成！`, 'success');
-        }, 1500);
+        }, 100);
     }
 
     deleteFile(fileId) {
