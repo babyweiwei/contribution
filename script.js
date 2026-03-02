@@ -348,7 +348,7 @@ class FileUploadManager {
                     name: item.name,
                     size: item.size,
                     type: this.getMimeTypeFromName(item.name),
-                    uploadDate: new Date(item.created_at || item.updated_at).toISOString(),
+                    uploadDate: new Date().toISOString(), // 使用当前时间
                     url: item.download_url,
                     path: item.path
                 }));
@@ -454,33 +454,9 @@ class FileUploadManager {
 let fileManager;
 
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM loaded, initializing FileUploadManager...');
     fileManager = new FileUploadManager();
-    
-    // 添加一些示例文件（可选）
-    if (fileManager.files.length === 0) {
-        const sampleFiles = [
-            {
-                id: Date.now() + 1,
-                name: '示例文档.pdf',
-                size: 1024 * 512, // 512KB
-                type: 'application/pdf',
-                uploadDate: new Date().toISOString(),
-                url: '#sample-pdf'
-            },
-            {
-                id: Date.now() + 2,
-                name: '项目代码.zip',
-                size: 1024 * 2048, // 2MB
-                type: 'application/zip',
-                uploadDate: new Date().toISOString(),
-                url: '#sample-zip'
-            }
-        ];
-        
-        fileManager.files = sampleFiles;
-        fileManager.saveFiles();
-        fileManager.renderFiles();
-    }
+    console.log('FileUploadManager initialized');
 });
 
 // 添加全局错误处理
