@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub 主页 - 文件分享平台</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <i class="fab fa-github"></i>
+                    <span>文件分享平台</span>
+                </div>
+                <div class="nav-links">
+                    <a href="#home" class="nav-link">首页</a>
+                    <a href="#upload" class="nav-link">上传文件</a>
+                    <a href="#files" class="nav-link">文件列表</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main">
+        <section id="home" class="hero">
+            <div class="hero-content">
+                <h1 class="hero-title">欢迎来到我的 GitHub 主页</h1>
+                <p class="hero-subtitle">一个现代化的开发者展示平台</p>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <i class="fab fa-github"></i>
+                        <span class="stat-number">150+</span>
+                        <span class="stat-label">项目</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-code-branch"></i>
+                        <span class="stat-number">1.2k</span>
+                        <span class="stat-label">提交</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-users"></i>
+                        <span class="stat-number">50+</span>
+                        <span class="stat-label">关注者</span>
+                    </div>
+                </div>
+                <div class="hero-buttons">
+                    <a href="#upload" class="btn btn-primary">
+                        <i class="fas fa-upload"></i> 上传文件
+                    </a>
+                    <a href="#files" class="btn btn-secondary">
+                        <i class="fas fa-folder"></i> 浏览文件
+                    </a>
+                    <a href="https://github.com/YOUR_USERNAME" class="btn btn-outline" target="_blank">
+                        <i class="fab fa-github"></i> GitHub
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section id="upload" class="upload-section">
+            <div class="container">
+                <h2 class="section-title">上传文件</h2>
+                <div class="upload-container">
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-content">
+                            <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                            <h3>拖拽文件到此处或点击选择</h3>
+                            <p>支持任何类型的文件，最大 10MB</p>
+                            <input type="file" id="fileInput" multiple hidden>
+                            <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                                选择文件
+                            </button>
+                        </div>
+                    </div>
+                    <div class="upload-progress" id="uploadProgress" style="display: none;">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <span class="progress-text" id="progressText">0%</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="files" class="files-section">
+            <div class="container">
+                <h2 class="section-title">文件列表</h2>
+                <div class="files-container">
+                    <div class="files-grid" id="filesGrid">
+                        <!-- 文件将动态添加到这里 -->
+                    </div>
+                    <div class="empty-state" id="emptyState">
+                        <i class="fas fa-folder-open"></i>
+                        <p>暂无文件，请先上传一些文件</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 GitHub 文件分享平台. 使用 <i class="fas fa-heart"></i> 制作</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
