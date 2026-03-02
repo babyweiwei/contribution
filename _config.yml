@@ -1,13 +1,10 @@
 # GitHub Pages Configuration
 title: GitHub 文件分享平台
 description: 一个现代化的开发者展示平台
-baseurl: /contribution
-url: https://babyweiwei.github.io
 
 # Build settings
 markdown: kramdown
 highlighter: rouge
-theme: minima
 
 # Plugins
 plugins:
@@ -19,10 +16,8 @@ exclude:
   - Gemfile
   - Gemfile.lock
   - node_modules
-  - vendor/bundle/
-  - vendor/cache/
-  - vendor/gems/
-  - vendor/ruby/
+  - vendor/
   - deploy-instructions.md
   - github-setup-guide.md
   - profile-readme.md
+  - .github/
