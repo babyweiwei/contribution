@@ -25,8 +25,71 @@ class FileUploadManager {
                         behavior: 'smooth',
                         block: 'start'
                     });
+                    
+                    // Update active nav state
+                    document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+                    if (this.classList.contains('nav-link')) {
+                        this.classList.add('active');
+                    }
                 }
             });
+        });
+
+        // Filter buttons
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Update active state
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // Filter files
+                const filter = btn.dataset.filter;
+                this.filterFiles(filter);
+            });
+        });
+
+        // Mobile nav toggle
+        const navToggle = document.querySelector('.nav-toggle');
+        const navMenu = document.querySelector('.nav-menu');
+        if (navToggle && navMenu) {
+            navToggle.addEventListener('click', () => {
+                navMenu.classList.toggle('active');
+            });
+        }
+
+        // Scroll spy for navigation
+        window.addEventListener('scroll', () => {
+            let current = '';
+            const sections = document.querySelectorAll('section');
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY >= sectionTop - 200) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    }
+
+    filterFiles(filter) {
+        const cards = document.querySelectorAll('.file-card');
+        
+        cards.forEach(card => {
+            if (filter === 'all') {
+                card.style.display = 'block';
+            } else {
+                const type = card.dataset.fileType;
+                card.style.display = type === filter ? 'block' : 'none';
+            }
         });
     }
 
@@ -91,6 +154,12 @@ class FileUploadManager {
             return;
         }
 
+        // Update file count in hero section
+        const fileCountElement = document.getElementById('fileCount');
+        if (fileCountElement) {
+            fileCountElement.textContent = this.files.length;
+        }
+
         if (this.files.length === 0) {
             this.filesGrid.style.display = 'none';
             this.emptyState.style.display = 'block';
@@ -101,7 +170,7 @@ class FileUploadManager {
         this.emptyState.style.display = 'none';
 
         this.filesGrid.innerHTML = this.files.map(file => `
-            <div class="file-card" data-file-id="${file.id}">
+            <div class="file-card" data-file-id="${file.id}" data-file-type="${this.getFileCategory(file.type)}">
                 <div class="file-header">
                     <div class="file-icon">
                         ${this.getFileIcon(file.type)}
@@ -118,6 +187,13 @@ class FileUploadManager {
                 </div>
             </div>
         `).join('');
+    }
+
+    getFileCategory(fileType) {
+        if (!fileType) return 'document';
+        if (fileType.startsWith('image/')) return 'image';
+        if (fileType.includes('javascript') || fileType.includes('html') || fileType.includes('css') || fileType.includes('json')) return 'code';
+        return 'document';
     }
 
     getFileIcon(fileType) {
